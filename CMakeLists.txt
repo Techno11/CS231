@@ -13,3 +13,5 @@ set(CMAKE_C_STANDARD 11)
 # Project 2.2 Postfix
 add_executable(CS231
         project_2_stack/postfix_eval.c project_2_stack/stack/stack.c project_2_stack/stack/stackADT.h project_2_stack/stack/data_types/doubleType.h project_2_stack/stack/data_types/doubleType.c)
+
+# Project 3
