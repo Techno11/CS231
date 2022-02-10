@@ -30,10 +30,10 @@ int isLetter(char c) {
  * @return Exit Code, 0 meaning successful
  */
 int main(int argc, char * argv[]) {
-    // Ensure we have 2 arguments
+    // Ensure we have 1 argument
     if (argc < 2) {
         // We're missing arguments, notify user
-        printf("Invalid arguments. Please make sure you call this program with 1 argument: an input file.\n");
+        printf("Invalid arguments. Please make sure you call this program with 1 argument\n");
 
         // Exit with code 1 to indicate error
         return 1;
@@ -42,18 +42,21 @@ int main(int argc, char * argv[]) {
     // Convert argument to int
     int target = atoi(argv[1]);
 
-    while(1) {
+    // Storage of input
+    char input[81] = "";
 
-        // Storage of input
-        char input[256] = "";
-        // Read Input
-        scanf("%s", &input);
+    // Iterate over stdin while pipe is open
+    while (fgets(input, 80, stdin) != NULL) {
 
         // Check length of line
-        if(strlen(input) == target) {
+        if(strlen(input) == target + 1) {
             // If length of input string matches our target, print input to console
-            printf("%s\n", input);
+            fprintf(stdout, "%s\n", input);
         }
 
+        // Empty any buffer to stdout
+        fflush(stdout);
     }
+
+    return 0;
 }
