@@ -1,9 +1,15 @@
-/*
-Interprocess Communication Using Pipes
-Remove vowels from words in child process.
-Parent uses pipe to send a string to child.
-Child processes string and writes result to screen.
-*/
+/**
+ * Project 3: Parent
+ *
+ * Main program to run and pipe together caseWorker, reverse, lengthCheck, and wordGrab
+ *
+ * Soren Zaiser
+ * zais5275@kettering.edu
+ *
+ * CS231 (Winter 2022)
+ * Prof. Vineyard
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -78,7 +84,7 @@ int main(int argc, char *argv[]) {
             close(wgFd[READ_END]);
             close(wgFd[WRITE_END]);
 
-            // Construct arguments to start lengthCheck
+            // Construct arguments to run lengthCheck
             char *arg[4];
             arg[0] = "./lengthCheck";
             arg[1] = targetWordLength;

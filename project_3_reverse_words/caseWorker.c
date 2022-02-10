@@ -1,7 +1,7 @@
 /**
- * Project 3: Reverse Words
+ * Project 3: Case Worker
  *
- * Main Program that executes all the child processes
+ * Program to read from stdin and output to a file after capitalizing all continents
  *
  * Soren Zaiser
  * zais5275@kettering.edu
