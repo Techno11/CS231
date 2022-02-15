@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
                 if(state == IN_SEPARATOR) printf("\n");
 
                 // Print the letter
-                printf("%c", line[i]);
+                fprintf(stdout, "%c", line[i]);
 
                 // Update state
                 state = IN_WORD;
@@ -80,4 +80,6 @@ int main(int argc, char * argv[]) {
             }
         }
     }
+    // Empty any buffer to stdout
+    fflush(stdout);
 }

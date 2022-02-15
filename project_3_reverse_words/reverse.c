@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 /**
  * Check if a character is a letter
@@ -30,17 +29,20 @@ int isLetter(char c) {
  * @return Exit Code, 0 meaning successful
  */
 int main(int argc, char * argv[]) {
-    while(1) {
+    // Storage of input
+    char input[81] = "";
 
-        // Storage of input
-        char input[81] = "";
-        // Read Input
-        scanf("%s", &input);
+    // Iterate over stdin while the pipe is open
+    while (fgets(input, 80, stdin) != NULL) {
 
+        // Reverse-iterate over the characters, printing them backwards, one-by-one
         for (int i = strlen(input) - 1; i >= 0; i--) {
-            printf("%c", input[i]);
+            fprintf(stdout, "%c", input[i]);
         }
 
-        printf("\n");
+        // Empty any buffer to stdout
+        fflush(stdout);
     }
+
+    return 0;
 }
