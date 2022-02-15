@@ -33,7 +33,7 @@ int main(int argc, char * argv[]) {
     // Ensure we have 2 arguments
     if (argc < 2) {
         // We're missing arguments, notify user
-        printf("Invalid arguments. Please make sure you call this program with 1 argument: an input file.\n");
+        printf("Invalid arguments. Please make sure you call this program with 1 argument: a length.\n");
 
         // Exit with code 1 to indicate error
         return 1;

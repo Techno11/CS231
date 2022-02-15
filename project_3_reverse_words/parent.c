@@ -29,7 +29,6 @@ int main() {
         // Close read end, child reads this
         close(fd[0]);
 
-
         while (fgets(msg, 100, stdin) != NULL) {
             len = strlen(msg);
             write(fd[1], msg, len);
