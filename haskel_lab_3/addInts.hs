@@ -3,7 +3,9 @@ main =
   putStrLn "How many numbers would you like to add? "
     >>  readInt
     >>= \count -> addFromConsole count
-    >>= \output -> print output
+    >>= \output -> 
+        putStrLn "Your Sum: "
+        >> print output
 
 getNumberFromConsole :: IO Int
 getNumberFromConsole =
@@ -18,17 +20,6 @@ addFromConsole n =
         getNumberFromConsole
             >>= \input -> return (input + recurs)
 
-
-
--- addFromConsole (remainingToRead - 1) >>= \recur ->
---             putStrLn "test"
---             >> getNumberFromConsole >>= \num -> 
---                 return num + recur
-
-
-    -- | remainingToRead >= 0 = 
-    --     addFromConsole (remainingToRead - 1) (putStrLn "Enter Number" >> (readInt) (currentValue) >>= \num cv -> num + cv)
-    -- | otherwise = show currentValue
 
 readInt :: IO Int
 readInt = readLn
