@@ -1,3 +1,8 @@
+-- Soren Zaiser
+-- CS231, Winter 2022
+-- Haskell Lab #3
+
+-- Add n ints, n is determined by user inputs
 main :: IO ()
 main =
   putStrLn "How many numbers would you like to add? " -- Print initial prompt
