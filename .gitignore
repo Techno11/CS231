@@ -2,3 +2,5 @@
 cmake-build-debug/
 *.zip
 *.out
+*.hi
+*.o
