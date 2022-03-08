@@ -7,6 +7,7 @@ import System.Environment
 import System.IO
 import Data.Char
 import Data.Text hiding (take, drop, lines, head)
+import Data.Time
 
 import Debug.Trace
 
@@ -28,46 +29,38 @@ data FullWord = FullWord {
                               col :: Int,
                               state :: SpellingState
                          } deriving (Eq, Show)
-
+main :: IO()
 main = do
+  start <- getCurrentTime
   [inFile, dictFile, outFile] <- getArgs
   input <- readFile inFile
   dict <- readFile dictFile
   let output = wordFormatter (dictIterator (lines dict) (lineIterator input))
   writeFile outFile output
+  end <- getCurrentTime
+  putStrLn "Total Time Elapsed: "
+  print (diffUTCTime end start)
 
 -- dictIterator is a helper method to setup dictIteratorRec correctlty
 dictIterator :: [String] -> [FullWord] -> [FullWord]
-dictIterator dict allWords = dictIteratorRec dict 0 allWords 0
+dictIterator dict allWords = dictIteratorRec dict 0 allWords 0 (len dict) (len allWords)	-- we calculate the sizes here, once, so we're not calculating it every recursion
 
 -- dictIteratorRec recursivelty iterates over the provided dictionary and the provided word list and marks correctly spelled words
-dictIteratorRec :: [String] -> Int -> [FullWord] -> Int -> [FullWord]
-dictIteratorRec dict currentDict allWords currentWord
+dictIteratorRec :: [String] -> Int -> [FullWord] -> Int -> Int -> Int -> [FullWord]
+dictIteratorRec dict currentDict allWords currentWord dictSize allWordsSize
      -- We're at the end of allWords, base case
-     | currentWord == len allWords = []
+     | currentWord == allWordsSize = []
      -- We're at the end of the dictionary
-     | currentDict == len dict = []
-     -- Check first letter, save us a little compute time
-     | Data.Char.toLower ((fullWord (allWords!!currentWord))!!0) /= (dict!!currentDict)!!0 =
-          dictIteratorRec dict (jumpToLetter dict (Data.Char.toLower ((fullWord (allWords!!currentWord))!!0)) currentDict 0) allWords currentWord
-     -- Check second letter, save us even more compute time
-     | Data.Char.toLower ((fullWord (allWords!!currentWord))!!1) /= (dict!!currentDict)!!1 =
-          dictIteratorRec dict (jumpToLetter dict (Data.Char.toLower ((fullWord (allWords!!currentWord))!!1)) currentDict 1) allWords currentWord
+     | currentDict == dictSize = []
      -- Our current word is still of higher alphabitization than the dict word, move to next dict word
      | lowerWord (allWords!!currentWord) > dict!!currentDict =
-          dictIteratorRec dict (currentDict + 1) allWords currentWord
+          dictIteratorRec dict (currentDict + 1) allWords currentWord dictSize allWordsSize
      -- Our current word equal to our current dict, and is spelled correctly
      | lowerWord (allWords!!currentWord) == dict!!currentDict =
-          (dictIteratorRec dict currentDict allWords (currentWord + 1)) ++ [markCorrect (allWords!!currentWord)]
+          (dictIteratorRec dict currentDict allWords (currentWord + 1) dictSize allWordsSize) ++ [markCorrect (allWords!!currentWord)]
      -- We've alphabetically passed the current word in the dictionary, it's spelled wrong
      | lowerWord (allWords!!currentWord) < dict!!currentDict =
-          (dictIteratorRec dict currentDict allWords (currentWord + 1)) ++ [allWords!!currentWord]
-
--- jumpToLetter recursively jumps to a letter in the dictionary
-jumpToLetter :: [String] -> Char -> Int -> Int -> Int
-jumpToLetter dict letter start locToCheck
-     | (dict!!start)!!locToCheck == letter = start
-     | otherwise = jumpToLetter dict letter (start + 1) locToCheck
+          (dictIteratorRec dict currentDict allWords (currentWord + 1) dictSize allWordsSize) ++ [allWords!!currentWord]
 
 -- markCorrect marks a FullWord as correct
 markCorrect :: FullWord -> FullWord
@@ -153,7 +146,7 @@ insertAlphabeticallyRec :: FullWord -> [FullWord] -> Int -> [FullWord]
 insertAlphabeticallyRec newWord allWords currentPosition
      -- We've reached the end of the list, append word to end of list
      | currentPosition == len allWords = allWords ++ [newWord]
-     | lwr (fullWord newWord) < lwr (fullWord (allWords!!currentPosition)) = insertAt newWord currentPosition allWords
+     | (lowerWord newWord) < (lowerWord (allWords!!currentPosition)) = insertAt newWord currentPosition allWords
      | otherwise = insertAlphabeticallyRec newWord allWords (currentPosition + 1)
 
 
