@@ -31,12 +31,14 @@ data FullWord = FullWord {
                          } deriving (Eq, Show)
 main :: IO()
 main = do
+  -- Record Start Time
   start <- getCurrentTime
   [inFile, dictFile, outFile] <- getArgs
   input <- readFile inFile
   dict <- readFile dictFile
   let output = wordFormatter (dictIterator (lines dict) (lineIterator input))
   writeFile outFile output
+  -- Print total time elapsed to do this intense calculation
   end <- getCurrentTime
   putStrLn "Total Time Elapsed: "
   print (diffUTCTime end start)
@@ -62,7 +64,7 @@ dictIteratorRec dict currentDict allWords currentWord dictSize allWordsSize
      | lowerWord (allWords!!currentWord) < dict!!currentDict =
           (dictIteratorRec dict currentDict allWords (currentWord + 1) dictSize allWordsSize) ++ [allWords!!currentWord]
 
--- markCorrect marks a FullWord as correct
+-- markCorrect marks a FullWord as correct by regenerating the DataType with the Correct enum
 markCorrect :: FullWord -> FullWord
 markCorrect old = FullWord (fullWord old) (lowerWord old) (line old) (col old) Correct
 
@@ -73,7 +75,9 @@ wordFormatter allWords = wordFormatterRec allWords 0
 -- wordFormatterRec formats the list of incorrect words into a printable string
 wordFormatterRec :: [FullWord] -> Int -> String
 wordFormatterRec allWords currentWord
+	 -- Base case, no more words
      | currentWord == len allWords = ""
+	 -- Recurse over the words and pretty print them
      | otherwise = wordFormatterRec allWords (currentWord + 1) ++ formatWord (allWords!!currentWord)
 
 -- formatWord pretty-prints a FullWord object
