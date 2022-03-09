@@ -9,16 +9,6 @@ import Data.Char
 import Data.Text hiding (take, drop, lines, head)
 import Data.Time
 
-import Debug.Trace
-
-{-
-main is the entry point to the program
-then run the program with command
-     ./Main in.txt dictionary.txt out.txt
-where in.txt is the name of the input file, out.txt is the name of the
-output file, and dictionary.txt is the name of the dictionary file
--}
-
 -- Spelling State Enum (For tracking status of a word)
 data SpellingState = Correct | Incorrect deriving (Enum,Show,Eq)
 -- Word Datatype, used to track data about the location and spelling of a word
@@ -29,21 +19,34 @@ data FullWord = FullWord {
                               col :: Int,
                               state :: SpellingState
                          } deriving (Eq, Show)
+
+{-
+    main is the entry point to the program
+    then run the program with command
+        ./Main in.txt dictionary.txt out.txt
+    where in.txt is the name of the input file, out.txt is the name of the
+    output file, and dictionary.txt is the name of the dictionary file
+-}
 main :: IO()
 main = do
   -- Record Start Time
   start <- getCurrentTime
+  -- Get program command line arguments
   [inFile, dictFile, outFile] <- getArgs
+  -- Open input file
   input <- readFile inFile
+  -- Open dictionary file
   dict <- readFile dictFile
+  -- Process text
   let output = wordFormatter (dictIterator (lines dict) (lineIterator input))
+  -- Write file
   writeFile outFile output
   -- Print total time elapsed to do this intense calculation
   end <- getCurrentTime
   putStrLn "Total Time Elapsed: "
   print (diffUTCTime end start)
 
--- dictIterator is a helper method to setup dictIteratorRec correctlty
+-- dictIterator is a helper function to setup dictIteratorRec correctlty
 dictIterator :: [String] -> [FullWord] -> [FullWord]
 dictIterator dict allWords = dictIteratorRec dict 0 allWords 0 (len dict) (len allWords)	-- we calculate the sizes here, once, so we're not calculating it every recursion
 
@@ -82,7 +85,7 @@ wordFormatterRec allWords currentWord
 
 -- formatWord pretty-prints a FullWord object
 formatWord :: FullWord -> String
-formatWord word = "The word '" ++ fullWord word ++ "' was found at " ++ show ((line word) + 1) ++ ":" ++ show ((col word) + 1) ++ " and the spelling is " ++ show (state word) ++ "\n"
+formatWord word = "'" ++ fullWord word ++ "' was found on line " ++ show ((line word) + 1) ++ " and is word #" ++ show ((col word) + 1) ++ " and the spelling is " ++ show (state word) ++ "\n"
 
 -- lineIterator sets up lineIteratorRec to run correctly
 lineIterator :: String -> [FullWord]
@@ -96,15 +99,13 @@ lineIteratorRec allLines currentLine allWords
      -- We still have lines left to iterate, recurse over them
      | otherwise = wordGrab (allLines!!currentLine) currentLine (lineIteratorRec allLines (currentLine + 1) allWords)
 
-
--- wordGrab is a helper to start wordGrabRec off correctly
+-- wordGrab is a helper function to start wordGrabRec off correctly
 wordGrab :: String -> Int -> [FullWord] -> [FullWord]
-wordGrab input lineNumber allWords = wordGrabRec input allWords lineNumber 0 0 False
-
+wordGrab input lineNumber allWords = wordGrabRec input allWords lineNumber 0 0 0 False
 
 -- wordGrabRec recursises over our input file string to find all words and make them into a list
-wordGrabRec :: String -> [FullWord] -> Int -> Int -> Int -> Bool -> [FullWord]
-wordGrabRec input allWords currentLine startChar currentChar inWord
+wordGrabRec :: String -> [FullWord] -> Int -> Int -> Int -> Int -> Bool -> [FullWord]
+wordGrabRec input allWords currentLine startChar currentChar wordCount inWord
     -- Check if we've reached the end of the input (Base Case)
     | currentChar == len input =
         -- Return the input list (list of our words)
@@ -112,34 +113,33 @@ wordGrabRec input allWords currentLine startChar currentChar inWord
     -- Check if the current char is an alphabetical character
     | isAsciiLower (input!!currentChar) || isAsciiUpper (input!!currentChar) =
         -- Current char we're analyzing IS an alphabetical character
-        isChar input allWords currentLine startChar currentChar inWord
+        isChar input allWords currentLine startChar currentChar wordCount inWord
     -- If we get here, we're neither at the end of the process or iterating over an alphabetical character
     | otherwise =
         -- We may have reached the end of a word
-        notChar input allWords currentLine startChar currentChar inWord
-
+        notChar input allWords currentLine startChar currentChar wordCount inWord
 
 -- isChar checks if wordGrabRec is inside of a word or not, and continues based on that
-isChar :: String -> [FullWord] -> Int -> Int -> Int -> Bool -> [FullWord]
-isChar input allWords lineNumber startChar currentChar inWord
+isChar :: String -> [FullWord] -> Int -> Int -> Int -> Int -> Bool -> [FullWord]
+isChar input allWords lineNumber startChar currentChar wordCount inWord
     | inWord = -- We're already in a word, just continue
-        wordGrabRec input allWords lineNumber startChar (currentChar + 1) True
+        wordGrabRec input allWords lineNumber startChar (currentChar + 1) wordCount True
     | otherwise = -- We're not in a word, mark inWord as true and update start counter
-        wordGrabRec input allWords lineNumber currentChar (currentChar + 1) True
+        wordGrabRec input allWords lineNumber currentChar (currentChar + 1) wordCount True
 
 -- notChar checks if wordGrabRec is inside of a word, and if we are, we end the word and append it to our inputList
-notChar :: String -> [FullWord] -> Int -> Int -> Int -> Bool -> [FullWord]
-notChar input allWords lineNumber startChar currentChar inWord
+notChar :: String -> [FullWord] -> Int -> Int -> Int -> Int -> Bool -> [FullWord]
+notChar input allWords lineNumber startChar currentChar wordCount inWord
     | inWord = -- We were in a word, now we're not. Add word to our inputList and continue iterating
         wordGrabRec input
-               (insertAlphabetically (FullWord (substring startChar currentChar input) (lwr (substring startChar currentChar input)) lineNumber startChar Incorrect) allWords)
+               (insertAlphabetically (FullWord (substring startChar currentChar input) (lwr (substring startChar currentChar input)) lineNumber wordCount Incorrect) allWords)
                lineNumber          -- Pass along line number
                0                   -- Set word starting position back to 0
                (currentChar + 1)   -- Iterate over next character
+               (wordCount + 1)     -- Update Word Count
                False               -- Set inWord to false, as we're no longer inside of a word
     | otherwise =      -- We were not in a word, just continue looking for alphabetical characters
-        wordGrabRec input allWords lineNumber 0 (currentChar + 1) False
-
+        wordGrabRec input allWords lineNumber 0 (currentChar + 1) wordCount False
 
 -- insertAlphabetically is a helper function to start insertAlphabeticallRec correctly
 insertAlphabetically :: FullWord -> [FullWord] -> [FullWord]
@@ -160,7 +160,6 @@ insertAlphabeticallyRec newWord allWords currentPosition
 insertAt :: a -> Int -> [a] -> [a]
 insertAt newElement 0 list = newElement:list                        -- Base case, we're at the position we want to insert the element, insert it
 insertAt newElement i (x:xs) = x : insertAt newElement (i - 1) xs   -- Recursively iterate over list until we get to the position we want to be at
-
 
 -- substring gets a smaller section of a larget string
 substring :: Int -> Int -> String -> String
