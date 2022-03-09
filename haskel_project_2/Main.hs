@@ -85,7 +85,7 @@ wordFormatterRec allWords currentWord
 
 -- formatWord pretty-prints a FullWord object
 formatWord :: FullWord -> String
-formatWord word = "'" ++ fullWord word ++ "' was found on line " ++ show ((line word) + 1) ++ " and is word #" ++ show ((col word) + 1) ++ " and the spelling is " ++ show (state word) ++ "\n"
+formatWord word = "'" ++ fullWord word ++ "' was found on line " ++ show ((line word) + 1) ++ ", is word #" ++ show ((col word) + 1) ++ ", and the spelling is " ++ show (state word) ++ "\n"
 
 -- lineIterator sets up lineIteratorRec to run correctly
 lineIterator :: String -> [FullWord]
