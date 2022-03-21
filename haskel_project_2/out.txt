@@ -1,9 +1,0 @@
-The word 'brown' was found at 4:1 and the spelling is Correct
-The word 'dog' was found at 4:13 and the spelling is Correct
-The word 'fox' was found at 3:1 and the spelling is Correct
-The word 'jumped' was found at 3:5 and the spelling is Correct
-The word 'my' was found at 6:6 and the spelling is Correct
-The word 'over' was found at 3:12 and the spelling is Correct
-The word 'QuicK' was found at 2:5 and the spelling is Correct
-The word 'The' was found at 2:1 and the spelling is Correct
-The word 'yeet' was found at 6:1 and the spelling is Incorrect
