@@ -55,13 +55,17 @@ main = do
 -- printHelp prints the help text
 printHelp :: IO()
 printHelp =
-        putStrLn "\nWelcome to fermi-pico-nano-wordle. The goal is to guess a random 5-letter word within 8 guesses.\n\n\
+        putStrLn "\ESC[48;5;20m\
+             \\n\ESC[1mWelcome to fermi-pico-nano-wordle\ESC[22m. The goal is to guess a random 5-letter word within 8 guesses.\n\n\
              \After each guess, a 5-digit score representing your word accuracy will be printed:\n\
              \      3 - Correct letter, correct location\n\
              \      7 - Letter exists, but is in the wrong location\n\
              \      9 - Letter does not exist in word\n\
-             \Good luck!\n\n\
-             \Type :? for help at any time\n"
+             \Good luck!\n\
+             \\n\
+             \\ESC[1mType :? for help at any time\ESC[22m\
+             \\ESC[49m\
+             \\n"
 
 -- startWordle starts the wordle game
 startWordle :: [String] -> Integer -> [String] -> IO()
@@ -85,21 +89,21 @@ wordleRec dict fullDict word guesses dictPos
 -- processWord recursively processes a wordle word
 processWord :: String -> String -> Int -> Integer -> [String] -> Integer -> [String] -> String -> IO()
 processWord word guess guessPos numGuesses dict dictPos fullDict guessAccuracy
-    | guessPos > 4 =                                                                -- We're at the end of the word, call next guess
-        putStrLn guessAccuracy
+    | guessPos > 4 =                                                 -- We're at the end of the word, call next guess
+        putStrLn guessAccuracy                                                      
         >> wordleRec dict fullDict word (numGuesses + 1) dictPos
-    | word == guess =                                                               -- Guess is correct, end game
-        putStrLn "33333\nCongrats, you guessed the correct word!"                   -- Print game-ending prompt
-        >> postGame dict dictPos                                                    -- Remove word from dictionary
-    | (word !! guessPos) == (guess !! guessPos) =                                   -- Current character is correct (match, 3)
+    | word == guess =                                                -- Guess is correct, end game
+        putStrLn "33333\nCongrats, you guessed the correct word!"    -- Print game-ending prompt
+        >> postGame dict dictPos                                     -- Remove word from dictionary
+    | (word !! guessPos) == (guess !! guessPos) =                    -- Current character is correct (match, 3)
         -- Append 3, character is correct and in correct spot then recurse over next character
         putStr ""
         >> processWord word guess (guessPos + 1) numGuesses dict dictPos fullDict (updateGuessAccuracy '3' guessAccuracy)
-    | contains word (guess !! guessPos) 0 =                                         -- Wordle contains the current character
+    | contains word (guess !! guessPos) 0 =                          -- Wordle contains the current character
         -- Append 7, character exists but in wrong spot then recurse over next character
         putStr ""
         >> processWord word guess (guessPos + 1) numGuesses dict dictPos fullDict (updateGuessAccuracy '7' guessAccuracy)
-    | otherwise =                                                                   -- Wordle does not contain current character
+    | otherwise =                                                    -- Wordle does not contain current character
         -- Append 9, incorrect character then recurse over next character
         putStr ""
         >> processWord word guess (guessPos + 1) numGuesses dict dictPos fullDict (updateGuessAccuracy '9' guessAccuracy)
@@ -107,9 +111,9 @@ processWord word guess guessPos numGuesses dict dictPos fullDict guessAccuracy
 -- updateGuessAccuracy updates the accuracy string of a wordle word
 updateGuessAccuracy :: Char -> String -> String
 updateGuessAccuracy newChar currentAcc
-    | newChar == '3' = newChar : currentAcc
-    | newChar == '9' = currentAcc ++ [newChar]
-    | newChar == '7' = insertSeven currentAcc 0
+    | newChar == '3' = newChar : currentAcc         -- 3s always go at the beginning
+    | newChar == '9' = currentAcc ++ [newChar]      -- 9s alwasy go at the end
+    | newChar == '7' = insertSeven currentAcc 0     -- 7 has to be specially inserted in the middle
 
 -- insertSeven inserts a 7 after the last 3
 insertSeven :: String -> Int -> String
